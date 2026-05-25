@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Salvou - Resumo da Operação</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container mt-5 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold text-primary mb-1">📊 Resumo da Operação</h1>
+            <p class="text-muted mb-0">Consolidação de métricas, filtros específicos e gráficos de performance.</p>
+        </div>
+        <a href="/" class="btn btn-outline-secondary rounded-pill px-4">Voltar ao Menu</a>
+    </div>
+
+    <div class="card p-3 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
+        <div class="d-flex gap-2">
+            <a th:href="@{/resumo(tipo='cliente')}"
+               th:class="${tipoSelecionado == 'cliente'} ? 'btn btn-primary rounded-pill px-4 fw-medium' : 'btn btn-outline-primary rounded-pill px-4'">
+                👤 Filtrar por Cliente
+            </a>
+            <a th:href="@{/resumo(tipo='vendedor')}"
+               th:class="${tipoSelecionado == 'vendedor'} ? 'btn btn-primary rounded-pill px-4 fw-medium' : 'btn btn-outline-primary rounded-pill px-4'">
+                💼 Filtrar por Vendedor
+            </a>
+        </div>
+    </div>
+
+    <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
+        <form method="GET" action="/resumo">
+            <input type="hidden" name="tipo" th:value="${tipoSelecionado}" />
+
+            <div class="row align-items-end g-3">
+                <div class="col-md-8" th:if="${tipoSelecionado == 'cliente'}">
+                    <label class="form-label fw-semibold text-secondary">Selecione um Cliente Específico:</label>
+                    <select name="clienteId" class="form-select">
+                        <option value="">-- Exibir Todos os Clientes --</option>
+                        <option th:each="c : ${clientes}"
+                                th:value="${c.id}"
+                                th:text="${c.nome} + ' (CPF: ' + ${c.cpf} + ')'"
+                                th:selected="${c.id == clienteSelecionadoId}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-8" th:if="${tipoSelecionado == 'vendedor'}">
+                    <label class="form-label fw-semibold text-secondary">Selecione um Vendedor Específico:</label>
+                    <select name="vendedorId" class="form-select">
+                        <option value="">-- Exibir Todos os Vendedores --</option>
+                        <option value="1" th:selected="${vendedorSelecionadoId == 1}">Admin / Usuário Padrão</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-success w-100 fw-medium">🔍 Aplicar Filtro</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 16px;">
+                <span class="text-muted fw-medium small text-uppercase">Faturamento no Período / Filtro</span>
+                <h2 class="fw-bold text-success mt-2 mb-0">
+                    R$ <span th:text="${#numbers.formatDecimal(faturamentoTotal, 1, 'POINT', 2, 'COMMA')}">0,00</span>
+                </h2>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 16px;">
+                <span class="text-muted fw-medium small text-uppercase">Quantidade de Vendas</span>
+                <h2 class="fw-bold text-primary mt-2 mb-0" th:text="${totalVendas}">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
+        <h5 class="fw-bold mb-3 text-secondary">📈 Evolução das Transações (Histórico Temporal)</h5>
+        <div style="width: 100%; max-height: 350px;">
+            <canvas id="graficoVendas"></canvas>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bg-white" style="border-radius: 16px; overflow: hidden;">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-2">
+            <h5 class="fw-bold mb-0">Detalhamento das Operações</h5>
+        </div>
+
+        <div class="table-responsive px-4 pb-4">
+            <table class="table table-hover align-middle mb-0" id="tabelaVendas">
+                <thead class="table-light text-muted small text-uppercase">
+                <tr>
+                    <th>Cód.</th>
+                    <th th:text="${tipoSelecionado == 'cliente'} ? 'Cliente' : 'Vendedor'">Entidade</th>
+                    <th>Serviços / Itens</th>
+                    <th>Data</th>
+                    <th class="text-end">Valor</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="venda : ${vendas}">
+                    <td class="fw-bold text-secondary" th:text="'#' + ${venda.id}">#1</td>
+                    <td>
+                        <span th:if="${tipoSelecionado == 'cliente' and venda.cliente != null}" class="fw-semibold text-primary" th:text="${venda.cliente.nome}"></span>
+                        <span th:if="${tipoSelecionado == 'cliente' and venda.cliente == null}" class="text-muted">Não informado</span>
+                        <span th:if="${tipoSelecionado == 'vendedor'}" class="fw-semibold text-success">Admin (Padrão)</span>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span th:each="s : ${venda.servicos}" class="badge bg-light text-dark border px-2 py-1" th:text="${s.nome}"></span>
+                        </div>
+                    </td>
+                    <td class="text-muted small data-venda-col"
+                        th:text="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy')}"
+                        th:data-raw-date="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy')}"
+                        th:data-raw-value="${venda.valorTotal}">
+                        25/05/2026
+                    </td>
+                    <td class="text-end fw-bold text-success"
+                        th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorTotal, 1, 'POINT', 2, 'COMMA')}">
+                        R$ 0,00
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(vendas)}">
+                    <td colspan="5" class="text-center py-4 text-muted">Nenhuma operação financeira encontrada para este filtro.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const colunasData = document.querySelectorAll(".data-venda-col");
+        const dadosAgrupados = {};
+
+        colunasData.forEach(col => {
+            const dataStr = col.getAttribute("data-raw-date");
+            const valorRaw = col.getAttribute("data-raw-value");
+            const valor = parseFloat(valorRaw) || 0;
+
+            if (dataStr) {
+                if (!dadosAgrupados[dataStr]) {
+                    dadosAgrupados[dataStr] = 0;
+                }
+                dadosAgrupados[dataStr] += valor;
+            }
+        });
+
+        const datasOrdenadas = Object.keys(dadosAgrupados).sort((a, b) => {
+            const partesA = a.split('/');
+            const partesB = b.split('/');
+            return new Date(partesA[2], partesA[1] - 1, partesA[0]) - new Date(partesB[2], partesB[1] - 1, partesB[0]);
+        });
+
+        const valoresOrdenados = datasOrdenadas.map(data => dadosAgrupados[data]);
+
+        const canvasElement = document.getElementById('graficoVendas');
+        if (canvasElement) {
+            const ctx = canvasElement.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: datasOrdenadas,
+                    datasets: [{
+                        label: 'Faturamento Total por Data (R$)',
+                        data: valoresOrdenados,
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.05)',
+                        borderWidth: 3,
+                        tension: 0.2,
+                        fill: true,
+                        pointBackgroundColor: '#0d6efd',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toFixed(2).replace('.', ',');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

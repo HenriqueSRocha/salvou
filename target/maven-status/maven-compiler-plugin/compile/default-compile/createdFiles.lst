@@ -1,0 +1,15 @@
+com\salvou\crm\Servico.class
+com\salvou\crm\VendaController.class
+com\salvou\crm\Agenda.class
+com\salvou\crm\AgendaController.class
+com\salvou\crm\AgendaRepository.class
+com\salvou\crm\HomeController.class
+com\salvou\crm\Venda.class
+com\salvou\crm\ServicoRepository.class
+com\salvou\crm\SalvouApplication.class
+com\salvou\crm\Cliente.class
+com\salvou\crm\VendaRepository.class
+com\salvou\crm\Main.class
+com\salvou\crm\ClienteRepository.class
+com\salvou\crm\ClienteController.class
+com\salvou\crm\GestorClientes.class
