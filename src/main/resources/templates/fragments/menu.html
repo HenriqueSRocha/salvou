@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="navbar(paginaAtiva)">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3 mb-4">
+        <div class="container">
+            <li class="nav-item px-2">
+                <a class="navbar-brand fw-bold text-success d-flex align-items-center gap-2" href="/">
+                    CRM Salvou
+                </a>
+            </li>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item px-2">
+                        <a th:class="${paginaAtiva == 'resumo'} ? 'nav-link active fw-semibold text-white' : 'nav-link'" href="/resumo">Dashboard</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a th:class="${paginaAtiva == 'venda'} ? 'nav-link active fw-semibold text-white' : 'nav-link'" href="/venda">Nova Venda</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a th:class="${paginaAtiva == 'clientes'} ? 'nav-link active fw-semibold text-white' : 'nav-link'" href="/clientes">Clientes</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a th:class="${paginaAtiva == 'agenda'} ? 'nav-link active fw-semibold text-white' : 'nav-link'" href="/agenda">Agenda</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+</html>

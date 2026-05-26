@@ -15,7 +15,8 @@ public class ClienteController {
     @Autowired
     private ClienteRepository repository;
 
-
+    @Autowired
+    private VendaRepository vendaRepository;
 
     // 1. Abre a página do formulário
     @GetMapping("/novo")
@@ -62,9 +63,30 @@ public class ClienteController {
 
     @GetMapping("/clientes/perfil/{id}")
     public String mostrarPerfil(@PathVariable Long id, Model model) {
+        // 1. Busca o cliente no banco
         Cliente cliente = repository.findById(id).orElse(null);
+
+        // Se o cliente realmente não existir, volta para a lista
+        if (cliente == null) {
+            return "redirect:/clientes";
+        }
+
+        // 2. Busca todas as vendas com segurança
+        List<Venda> todasVendas = vendaRepository.findAll();
+
+        // 3. Filtra as compras do cliente (se não houver nenhuma, retorna uma lista vazia segura)
+        List<Venda> comprasDoCliente = java.util.Collections.emptyList();
+        if (todasVendas != null && !todasVendas.isEmpty()) {
+            comprasDoCliente = todasVendas.stream()
+                    .filter(v -> v != null && v.getCliente() != null && id.equals(v.getCliente().getId()))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
+        // 4. Envia os dados para a tela
         model.addAttribute("cliente", cliente);
-        return "perfil-cliente"; // Nome do novo HTML que criaremos
+        model.addAttribute("compras", comprasDoCliente); // Garantido que nunca vai nulo
+
+        return "perfil-cliente";
     }
 
 }

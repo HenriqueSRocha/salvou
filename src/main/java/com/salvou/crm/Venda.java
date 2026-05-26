@@ -1,7 +1,7 @@
 package com.salvou.crm;
 
 import jakarta.persistence.*;
-        import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,16 +25,32 @@ public class Venda {
     private Double valorTotal;
     private LocalDateTime dataVenda = LocalDateTime.now();
 
+    // --- NOVO ATRIBUTO ADICIONADO ---
+    private String vendedor;
+
     // Getters e Setters
     public Long getId() { return id; }
+
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
+
     public List<Servico> getServicos() { return servicos; }
     public void setServicos(List<Servico> servicos) { this.servicos = servicos; }
+
     public Double getValorTotal() { return valorTotal; }
     public void setValorTotal(Double valorTotal) { this.valorTotal = valorTotal; }
+
     public LocalDateTime getDataVenda() { return dataVenda; }
     public void setDataVenda(LocalDateTime dataVenda) {
         this.dataVenda = dataVenda;
+    }
+
+    // --- NOVOS MÉTODOS ADICIONADOS ---
+    public String getVendedor() {
+        return vendedor;
+    }
+
+    public void setVendedor(String vendedor) {
+        this.vendedor = vendedor;
     }
 }

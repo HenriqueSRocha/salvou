@@ -20,7 +20,7 @@ public class DataInitializer {
                 return;
             }
 
-            System.out.println("🌱 Gerando massa de dados avançada de teste para o Salvou CRM...");
+            System.out.println("Gerando massa de dados avançada de teste para o Salvou CRM...");
 
             // 1. MIX DE SERVIÇOS E PRODUTOS CONFIGURADOS (Variedade de Preços)
             Servico s1 = servicoRepository.save(new Servico("Consultoria Estratégica CRM", 350.0));
@@ -31,6 +31,16 @@ public class DataInitializer {
             Servico s6 = servicoRepository.save(new Servico("Identidade Visual & Branding", 1200.0));
             Servico s7 = servicoRepository.save(new Servico("Otimização de SEO Avançada", 950.0));
             Servico s8 = servicoRepository.save(new Servico("Hospedagem Cloud Anual", 600.0));
+
+            Cliente padrao = new Cliente();
+            padrao.setNome("Cliente Padrão");
+            padrao.setCpf("000.000.000-00"); // CPF fictício ou padrão
+            padrao.setTelefone("(00) 00000-0000");
+            padrao.setEmail("balcao@salvou.com");
+            padrao.setDataNascimento(java.time.LocalDate.of(2020, 1, 1));
+            padrao.setEndereco("Venda Direta");
+
+            clienteRepository.save(padrao);
 
             // 2. CARTEIRA DE CLIENTES EXPANDIDA
             Cliente c1 = clienteRepository.save(new Cliente("Joyce Manicure & Estética"));
@@ -151,7 +161,7 @@ public class DataInitializer {
             v10.setDataVenda(hoje);
             vendaRepository.save(v10);
 
-            System.out.println("🚀 Nova amostragem de dados injetada com sucesso!");
+            System.out.println("Nova amostragem de dados injetada com sucesso!");
         };
     }
 }

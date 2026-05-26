@@ -18,69 +18,80 @@
     </style>
 </head>
 <body>
+<div th:replace="~{fragments/menu :: navbar('clientes')}"></div>
 <div class="container mt-5 mb-5">
-    <div class="app-header">
-        <h1 class="app-title">Perfil do Cliente</h1>
-        <p class="app-subtitle">Veja os dados do cliente e o histórico de vendas associadas.</p>
-    </div>
 
-    <div class="profile-grid">
-        <div class="app-card profile-card">
-            <h3>Dados do Cliente</h3>
-            <div class="profile-details">
-                <div>
-                    <div class="client-label">Nome</div>
-                    <div class="client-value" th:text="${cliente.nome}">Nome do cliente</div>
-                </div>
-                <div>
-                    <div class="client-label">CPF</div>
-                    <div class="client-value" th:text="${cliente.cpf}">000.000.000-00</div>
-                </div>
-                <div>
-                    <div class="client-label">Telefone</div>
-                    <div class="client-value" th:text="${cliente.telefone}">(35) 99999-0000</div>
-                </div>
-                <div>
-                    <div class="client-label">E-mail</div>
-                    <div class="client-value" th:text="${cliente.email}">email@exemplo.com</div>
-                </div>
-                <div>
-                    <div class="client-label">Data de Nascimento</div>
-                    <div class="client-value" th:text="${cliente.dataNascimento}">01/01/1980</div>
-                </div>
-                <div>
-                    <div class="client-label">Endereço</div>
-                    <div class="client-value" th:text="${cliente.endereco}">Rua Exemplo, 123</div>
-                </div>
-                <div>
-                    <div class="client-label">Total de Vendas</div>
-                    <div class="client-value" th:text="${#numbers.formatDecimal(cliente.valorTotalVendas, 1, 'POINT', 2, 'COMMA')}">0,00</div>
-                </div>
-            </div>
-            <div class="profile-actions">
-                <a href="/clientes" class="btn btn-outline-secondary">Voltar à Lista</a>
-                <a href="/venda" class="btn btn-primary">Registrar Venda</a>
-            </div>
+    <div th:if="${cliente != null}">
+        <div class="app-header">
+            <h1 class="app-title">Perfil do Cliente</h1>
+            <p class="app-subtitle">Veja os dados do cliente e o histórico de vendas associadas.</p>
         </div>
 
-        <div class="app-card profile-card">
-            <h3>Histórico de Vendas</h3>
-            <div th:if="${cliente.vendas == null or #lists.isEmpty(cliente.vendas)}" class="text-muted">Nenhuma venda registrada para este cliente.</div>
-            <div th:if="${cliente.vendas != null and !#lists.isEmpty(cliente.vendas)}">
-                <div class="table-responsive">
-                    <table class="table table-borderless mb-0">
+        <div class="profile-grid">
+            <div class="app-card profile-card">
+                <h3>Dados do Cliente</h3>
+                <div class="profile-details">
+                    <div>
+                        <div class="client-label">Nome</div>
+                        <div class="client-value" th:text="${cliente.nome}">Nome do cliente</div>
+                    </div>
+                    <div>
+                        <div class="client-label">CPF</div>
+                        <div class="client-value" th:text="${cliente.cpf}">000.000.000-00</div>
+                    </div>
+                    <div>
+                        <div class="client-label">Telefone</div>
+                        <div class="client-value" th:text="${cliente.telefone}">(35) 99999-0000</div>
+                    </div>
+                    <div>
+                        <div class="client-label">E-mail</div>
+                        <div class="client-value" th:text="${cliente.email}">email@exemplo.com</div>
+                    </div>
+                    <div>
+                        <div class="client-label">Data de Nascimento</div>
+                        <div class="client-value" th:text="${cliente.dataNascimento != null} ? ${#temporals.format(cliente.dataNascimento, 'dd/MM/yyyy')} : 'Não informada'">30/08/1997</div>
+                    </div>
+                    <div>
+                        <div class="client-label">Endereço</div>
+                        <div class="client-value" th:text="${cliente.endereco}">Rua Exemplo, 123</div>
+                    </div>
+                    <div>
+                        <div class="client-label">Total de Vendas</div>
+                        <div class="client-value" th:text="${cliente.valorTotalVendas != null} ? 'R$ ' + ${#numbers.formatDecimal(cliente.valorTotalVendas, 1, 'POINT', 2, 'COMMA')} : 'R$ 0,00'">0,00</div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="/clientes" class="btn btn-outline-secondary">Voltar à Lista</a>
+                    <a href="/venda" class="btn btn-primary">Registrar Venda</a>
+                </div>
+            </div>
+
+            <div class="app-card profile-card">
+                <h3>Histórico de Vendas</h3>
+                <div th:if="${compras == null or #lists.isEmpty(compras)}" class="text-center py-4 text-muted">
+                    Nenhum histórico de compras encontrado para este cliente.
+                </div>
+
+                <div th:if="${compras != null and !#lists.isEmpty(compras)}">
+                    <table class="table align-middle">
                         <thead>
                         <tr>
-                            <th>Venda</th>
-                            <th>Valor</th>
+                            <th>Cód. Venda</th>
                             <th>Data</th>
+                            <th>Itens/Serviços</th>
+                            <th class="text-end">Valor Total</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="venda : ${cliente.vendas}">
-                            <td th:text="${venda.id}">1</td>
-                            <td th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorTotal, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
-                            <td th:text="${venda.dataVenda}">2026-01-01T12:00</td>
+                        <tr th:each="v : ${compras}">
+                            <td class="fw-bold text-secondary" th:text="'#' + ${v.id}">#1</td>
+                            <td class="text-muted small" th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy HH:mm')}">26/05/2026</td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span th:each="s : ${v.servicos}" class="badge bg-light text-dark border px-2 py-1" th:text="${s.nome}"></span>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold text-success" th:text="'R$ ' + ${#numbers.formatDecimal(v.valorTotal, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
                         </tr>
                         </tbody>
                     </table>
@@ -88,6 +99,15 @@
             </div>
         </div>
     </div>
+
+    <div th:if="${cliente == null}" class="text-center py-5">
+        <div class="card p-5 shadow-sm border-0 bg-white mx-auto" style="max-width: 500px; border-radius: 16px;">
+            <h3 class="text-danger fw-bold mb-3">⚠️ Cliente Não Localizado</h3>
+            <p class="text-muted mb-4">O perfil deste cliente não pôde ser carregado. Isso ocorre se o registro foi removido ou se a aplicação foi reiniciada recentemente.</p>
+            <a href="/clientes" class="btn btn-primary rounded-pill px-4">Voltar para Lista de Clientes</a>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>

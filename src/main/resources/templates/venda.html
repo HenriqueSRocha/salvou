@@ -2,260 +2,252 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Salvou - Nova Venda</title>
+    <title>Salvou - Registrar Nova Venda</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #eef2fb;
-            --surface: #ffffff;
-            --primary: #0d6efd;
-            --secondary: #495057;
-            --success: #198754;
-            --border: rgba(13,110,253,0.12);
-        }
-        body {
-            background-color: var(--bg);
-            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-            color: var(--secondary);
-        }
-        .card { border-radius: 15px; border: none; background: var(--surface); }
-        .input-group-text { background-color: #e9ecef; }
-        .text-primary { color: var(--primary) !important; }
-        .btn-primary { background-color: var(--primary); border-color: var(--primary); }
-        .btn-primary:hover { background-color: #0b5ed7; border-color: #0a58ca; }
-        .btn-success { background-color: var(--success); border-color: var(--success); }
-        .btn-success:hover { background-color: #157347; border-color: #146c43; }
-    </style>
 </head>
 <body>
+<div th:replace="~{fragments/menu :: navbar('venda')}"></div>
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold text-primary mb-1">Venda</h1>
+        </div>
+    </div>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                    <h2 class="text-primary fw-bold m-0">Nova Venda</h2>
-                    <div class="d-flex gap-2">
-                        <a href="/clientes" class="btn btn-outline-secondary btn-sm shadow-sm d-flex align-items-center">
-                            Lista de Clientes
-                        </a>
-                        <a href="/clientes" class="btn btn-outline-secondary btn-sm">Voltar</a>
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
+                <h5 class="fw-bold text-secondary mb-3">Informações Operacionais</h5>
+
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Vendedor Responsável:</label>
+                    <select id="selectVendedor" class="form-select">
+                        <option value="Henrique Rocha">Henrique Rocha</option>
+                        <option value="Beatriz Silva">Beatriz Silva</option>
+                        <option value="Carlos Souza">Carlos Souza</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Cliente:</label>
+                    <select id="selectCliente" class="form-select">
+                        <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Forma de Pagamento:</label>
+                    <select id="formaPagamento" class="form-select">
+                        <option value="PIX">    PIX</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card p-4 shadow-sm border-0 bg-white" style="border-radius: 16px;">
+                <h5 class="fw-bold text-secondary mb-3">Adicionar Serviços/Produtos</h5>
+
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Selecione o Item:</label>
+                    <select id="selectServico" class="form-select">
+                        <option value="" data-preco="0">-- Escolha um item --</option>
+                        <option th:each="s : ${servicos}"
+                                th:value="${s.id}"
+                                th:text="${s.nome} + ' - R$ ' + ${#numbers.formatDecimal(s.preco, 1, 2)}"
+                                th:data-preco="${s.preco}"
+                                th:data-nome="${s.nome}"></option>
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label fw-medium">Quantidade:</label>
+                        <input type="number" id="inputQuantidade" class="form-select" value="1" min="1">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-medium">Desconto Unitário (R$):</label>
+                        <input type="number" id="inputDesconto" class="form-select" value="0.00" min="0" step="0.01">
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Cliente</label>
-                    <div id="areaCliente">
-                        <select class="form-select form-select-lg mb-2" id="selectCliente">
-                            <option value="">Selecione um cliente...</option>
-                            <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
-                        </select>
-                        <button class="btn btn-outline-primary btn-sm w-100 shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#modalCliente">
-                            + Adicionar Novo Cliente
-                        </button>
+                <button type="button" id="btnAdicionar" class="btn btn-primary w-100 fw-medium rounded-pill">+ Inserir no Carrinho</button>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card p-4 shadow-sm border-0 bg-white h-100 d-flex flex-column justify-content-between" style="border-radius: 16px;">
+                <div>
+                    <h5 class="fw-bold text-secondary mb-3">Carrinho</h5>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light small text-uppercase">
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-center">Qtd</th>
+                                <th class="text-end">Preço Unit.</th>
+                                <th class="text-end">Desc.</th>
+                                <th class="text-end">Subtotal</th>
+                                <th class="text-center">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody id="corpoCarrinho">
+                            <tr id="linhaVazia">
+                                <td colspan="6" class="text-center py-4 text-muted small">Nenhum item adicionado ao carrinho.</td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Itens da Venda</label>
-                    <div id="listaServicos" class="mb-3"></div>
-                    <button class="btn btn-outline-primary btn-sm w-100 shadow-sm" onclick="adicionarLinhaServico()">
-                        + Adicionar Produto ou Serviço
+                <div class="border-top pt-4 mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted fw-medium">Subtotal Bruto:</span>
+                        <span class="fw-semibold text-secondary" id="txtSubtotal">R$ 0,00</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted fw-medium">Total de Descontos:</span>
+                        <span class="fw-semibold text-danger" id="txtDescontoTotal">- R$ 0,00</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fs-5 fw-bold text-dark">Valor Líquido a Pagar:</span>
+                        <span class="fs-4 fw-bold text-success" id="txtTotalLiquido">R$ 0,00</span>
+                    </div>
+                    <button type="button" id="btnFinalizar" class="btn btn-success w-100 py-2 fw-bold rounded-pill fs-5" disabled>
+                        Finalizar e Salvar Venda
                     </button>
                 </div>
 
-                <hr>
-
-                <button class="btn btn-success btn-lg w-100 fw-bold shadow mt-2" onclick="finalizarVenda()">
-                    FINALIZAR VENDA
-                </button>
             </div>
         </div>
     </div>
+
 </div>
 
-<div class="modal fade" id="modalCliente" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header"><h5>Novo Cliente Rápido</h5></div>
-            <div class="modal-body">
-                <input type="text" id="nomeRapido" class="form-control mb-2" placeholder="Nome" maxlength="50">
+<script>
+    let carrinho = [];
 
-                <input type="text" id="cpfRapido" class="form-control mb-2" placeholder="000.000.000-00" maxlength="14">
+    const btnAdicionar = document.getElementById("btnAdicionar");
+    const btnFinalizar = document.getElementById("btnFinalizar");
+    const selectServico = document.getElementById("selectServico");
+    const inputQuantidade = document.getElementById("inputQuantidade");
+    const inputDesconto = document.getElementById("inputDesconto");
+    const corpoCarrinho = document.getElementById("corpoCarrinho");
 
-                <input type="text" id="telRapido" class="form-control" placeholder="(00) 00000-0000" maxlength="15">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="salvarClienteRapido()">Salvar e Selecionar</button>
-            </div>
-        </div>
-    </div>
-</div>
+    btnAdicionar.addEventListener("click", () => {
+        const option = selectServico.options[selectServico.selectedIndex];
+        const id = option.value;
+        const nome = option.getAttribute("data-nome");
+        const preco = parseFloat(option.getAttribute("data-preco")) || 0;
+        const qtd = parseInt(inputQuantidade.value) || 1;
+        const desc = parseFloat(inputDesconto.value) || 0;
 
-<div class="modal fade" id="modalServico" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header"><h5>Novo Serviço/Produto</h5></div>
-            <div class="modal-body">
-                <input type="text" id="nomeServico" class="form-control mb-2" placeholder="Nome do Serviço">
-                <input type="number" id="precoServico" class="form-control" placeholder="Preço">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="cadastrarServicoRapido()">Salvar e Adicionar</button>
-            </div>
-        </div>
-    </div>
-</div>
+        if (!id) {
+            alert("Selecione um produto ou serviço válido!");
+            return;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        // Calcula valores do item
+        const subtotal = (preco - desc) * qtd;
 
-<script th:inline="javascript">
-    const servicosDisponiveis = /*[[${servicos}]]*/ [];
-    // Função para aplicar as máscaras dinamicamente
-    const inputTelefone = document.getElementById('telRapido');
-    const inputCPF = document.getElementById('cpfRapido');
+        // Adiciona ao array do carrinho
+        carrinho.push({ id, nome, preco, qtd, desc, subtotal });
 
-    inputTelefone.addEventListener('input', (e) => {
-        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
-        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        atualizarInterfaceCarrinho();
+
+        // Limpa campos de entrada
+        selectServico.value = "";
+        inputQuantidade.value = "1";
+        inputDesconto.value = "0.00";
     });
 
-    inputCPF.addEventListener('input', (e) => {
-        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
-        e.target.value = x[1] + (x[2] ? '.' + x[2] : '') + (x[3] ? '.' + x[3] : '') + (x[4] ? '-' + x[4] : '');
-    });
+    function atualizarInterfaceCarrinho() {
+        if (carrinho.length === 0) {
+            corpoCarrinho.innerHTML = `<tr id="linhaVazia"><td colspan="6" class="text-center py-4 text-muted small">Nenhum item adicionado ao carrinho.</td></tr>`;
+            btnFinalizar.disabled = true;
+            document.getElementById("txtSubtotal").innerText = "R$ 0,00";
+            document.getElementById("txtDescontoTotal").innerText = "- R$ 0,00";
+            document.getElementById("txtTotalLiquido").innerText = "R$ 0,00";
+            return;
+        }
 
-    function adicionarLinhaServico() {
-        const container = document.getElementById('listaServicos');
-        const div = document.createElement('div');
-        div.className = 'input-group mb-2 linha-servico shadow-sm';
+        document.getElementById("linhaVazia")?.remove();
+        corpoCarrinho.innerHTML = "";
 
-        let options = '<option value="">Escolha um item...</option>';
-        servicosDisponiveis.forEach(s => {
-            options += `<option value="${s.id}">${s.nome} - R$ ${s.preco}</option>`;
+        let bruto = 0;
+        let descontos = 0;
+        let liquido = 0;
+
+        carrinho.forEach((item, index) => {
+            bruto += (item.preco * item.qtd);
+            descontos += (item.desc * item.qtd);
+            liquido += item.subtotal;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="fw-semibold text-dark">${item.nome}</td>
+                <td class="text-center fw-medium">${item.qtd}</td>
+                <td class="text-end text-muted">R$ ${item.preco.toFixed(2).replace('.', ',')}</td>
+                <td class="text-end text-danger">- R$ ${item.desc.toFixed(2).replace('.', ',')}</td>
+                <td class="text-end fw-bold text-secondary">R$ ${item.subtotal.toFixed(2).replace('.', ',')}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill" onclick="removerItem(${index})">❌</button>
+                </td>
+            `;
+            corpoCarrinho.appendChild(tr);
         });
 
-        div.innerHTML = `
-            <select class="form-select select-servico-id">${options}</select>
-            <button class="btn btn-outline-danger" onclick="this.parentElement.remove()">✕</button>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalServico">+</button>
-        `;
-        container.appendChild(div);
+        document.getElementById("txtSubtotal").innerText = `R$ ${bruto.toFixed(2).replace('.', ',')}`;
+        document.getElementById("txtDescontoTotal").innerText = `- R$ ${descontos.toFixed(2).replace('.', ',')}`;
+        document.getElementById("txtTotalLiquido").innerText = `R$ ${liquido.toFixed(2).replace('.', ',')}`;
+        btnFinalizar.disabled = false;
     }
 
-    function salvarClienteRapido() {
-        const nome = document.getElementById('nomeRapido').value;
-        const tel = document.getElementById('telRapido').value;
-        const cpf = document.getElementById('cpfRapido').value;
-
-        fetch('/clientes/rapido', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome: nome, telefone: tel, cpf: cpf })
-        })
-            .then(async response => {
-                if (!response.ok) {
-                    const erro = await response.text();
-                    throw new Error(erro);
-                }
-                return response.json();
-            })
-            .then(cliente => {
-                console.log("Cliente recebido:", cliente); // Para conferir no F12
-
-                const select = document.getElementById('selectCliente');
-
-                // Criamos uma nova opção para o select
-                const novaOpcao = new Option(cliente.nome, cliente.id);
-                select.add(novaOpcao);
-
-                // Forçamos a seleção do novo cliente
-                select.value = cliente.id;
-
-                // Fecha o modal
-                const modalElement = document.getElementById('modalCliente');
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) modalInstance.hide();
-
-                // Limpa os campos
-                document.getElementById('nomeRapido').value = '';
-                document.getElementById('telRapido').value = '';
-                document.getElementById('cpfRapido').value = '';
-
-                alert("Cliente cadastrado e selecionado!");
-            })
-            .catch(err => {
-                console.error(err);
-                alert(err.message);
-            });
+    function removerItem(index) {
+        carrinho.splice(index, 1);
+        atualizarInterfaceCarrinho();
     }
 
-    function cadastrarServicoRapido() {
-        const nome = document.getElementById('nomeServico').value;
-        const preco = document.getElementById('precoServico').value;
-        fetch('/servicos/rapido', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome: nome, preco: preco })
-        })
-            .then(response => response.json())
-            .then(servico => {
-                servicosDisponiveis.push(servico);
-                document.querySelectorAll('.select-servico-id').forEach(s => {
-                    s.add(new Option(servico.nome + ' - R$ ' + servico.preco, servico.id));
-                });
-                bootstrap.Modal.getInstance(document.getElementById('modalServico')).hide();
-            });
-    }
-    function finalizarVenda() {
-        const clienteId = document.getElementById('selectCliente').value;
-        const selectsServicos = document.querySelectorAll('.select-servico-id');
+    btnFinalizar.addEventListener("click", () => {
+        const clienteId = document.getElementById("selectCliente").value;
+        const vendedorNome = document.getElementById("selectVendedor").value;
+        const totalLiquidoStr = document.getElementById("txtTotalLiquido").innerText
+            .replace("R$ ", "").replace(".", "").replace(",", ".");
 
-        // Captura os IDs de todos os serviços selecionados nas linhas
-        const servicosIds = Array.from(selectsServicos)
-            .map(s => s.value)
-            .filter(id => id !== ""); // Remove campos vazios
+        // Mapeia os IDs dos serviços comprados
+        const servicosIds = carrinho.map(item => parseInt(item.id));
 
-        if (!clienteId) {
-            alert("Por favor, selecione um cliente.");
-            return;
-        }
-        if (servicosIds.length === 0) {
-            alert("Adicione pelo menos um produto ou serviço.");
-            return;
-        }
-
-        // Monta o objeto exatamente como a classe Venda espera no Java
-        const dadosVenda = {
-            cliente: { id: parseInt(clienteId) },
-            servicos: servicosIds.map(id => ({ id: parseInt(id) }))
+        // Estrutura o JSON para enviar ao Spring Boot
+        const payload = {
+            cliente: clienteId ? { id: parseInt(clienteId) } : null,
+            vendedor: vendedorNome,
+            servicos: servicosIds.map(id => ({ id: id })),
+            valorTotal: parseFloat(totalLiquidoStr)
         };
 
-        fetch('/venda/finalizar', {
+        btnFinalizar.disabled = true;
+        btnFinalizar.innerText = "Processando transação...";
+
+        fetch('/vendas/salvar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dadosVenda)
+            body: JSON.stringify(payload)
         })
-            .then(response => {
-                if (response.ok) {
-                    alert("Venda realizada com sucesso!");
-                    // Limpa a tela para a próxima venda
-                    document.getElementById('listaServicos').innerHTML = '';
-                    document.getElementById('selectCliente').value = '';
+            .then(res => {
+                if (res.ok) {
+                    alert("🎉 Venda registrada com sucesso no Salvou CRM!");
+                    window.location.href = "/resumo";
                 } else {
-                    alert("Erro ao processar venda no servidor.");
+                    alert("Erro ao salvar a transação.");
+                    btnFinalizar.disabled = false;
+                    btnFinalizar.innerText = "💸 Finalizar e Salvar Venda";
                 }
-            })
-            .catch(error => {
-                console.error("Erro na requisição:", error);
-                alert("Erro de conexão.");
             });
-    }
-
-
-
+    });
 </script>
 </body>
 </html>

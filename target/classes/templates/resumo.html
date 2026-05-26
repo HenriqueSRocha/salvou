@@ -9,55 +9,74 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+<div th:replace="~{fragments/menu :: navbar('resumo')}"></div>
 <div class="container mt-5 mb-5">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="fw-bold text-primary mb-1">📊 Resumo da Operação</h1>
-            <p class="text-muted mb-0">Consolidação de métricas, filtros específicos e gráficos de performance.</p>
-        </div>
-        <a href="/" class="btn btn-outline-secondary rounded-pill px-4">Voltar ao Menu</a>
-    </div>
-
-    <div class="card p-3 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
-        <div class="d-flex gap-2">
-            <a th:href="@{/resumo(tipo='cliente')}"
-               th:class="${tipoSelecionado == 'cliente'} ? 'btn btn-primary rounded-pill px-4 fw-medium' : 'btn btn-outline-primary rounded-pill px-4'">
-                👤 Filtrar por Cliente
-            </a>
-            <a th:href="@{/resumo(tipo='vendedor')}"
-               th:class="${tipoSelecionado == 'vendedor'} ? 'btn btn-primary rounded-pill px-4 fw-medium' : 'btn btn-outline-primary rounded-pill px-4'">
-                💼 Filtrar por Vendedor
-            </a>
+            <h1 class="fw-bold text-primary mb-1">Resumo da Operação</h1>
         </div>
     </div>
 
     <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
-        <form method="GET" action="/resumo">
-            <input type="hidden" name="tipo" th:value="${tipoSelecionado}" />
+        <form method="GET" action="/resumo" id="formFiltros">
+            <input type="hidden" name="tipo" id="inputTipo" th:value="${tipoSelecionado}" />
 
-            <div class="row align-items-end g-3">
-                <div class="col-md-8" th:if="${tipoSelecionado == 'cliente'}">
-                    <label class="form-label fw-semibold text-secondary">Selecione um Cliente Específico:</label>
-                    <select name="clienteId" class="form-select">
-                        <option value="">-- Exibir Todos os Clientes --</option>
-                        <option th:each="c : ${clientes}"
-                                th:value="${c.id}"
-                                th:text="${c.nome} + ' (CPF: ' + ${c.cpf} + ')'"
-                                th:selected="${c.id == clienteSelecionadoId}"></option>
-                    </select>
+            <div class="card p-3 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
+                <div class="d-flex gap-2">
+                    <button type="button"
+                            th:class="${tipoSelecionado == 'cliente'} ? 'btn btn-primary rounded-pill px-4 fw-medium' : 'btn btn-outline-primary rounded-pill px-4'"
+                            onclick="mudarAba('cliente')">
+                        Filtrar por Cliente
+                    </button>
+                    <button type="button"
+                            th:class="${tipoSelecionado == 'vendedor'} ? 'btn btn-primary rounded-pill px-4 fw-medium' : 'btn btn-outline-primary rounded-pill px-4'"
+                            onclick="mudarAba('vendedor')">
+                        Filtrar por Vendedor
+                    </button>
+                </div>
+            </div>
+
+            <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
+
+                <div class="row g-3 align-items-end mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-secondary small text-uppercase">Data Inicial</label>
+                        <input type="date" name="dataInicio" class="form-control" th:value="${dataInicio}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-secondary small text-uppercase">Data Final</label>
+                        <input type="date" name="dataFim" class="form-control" th:value="${dataFim}">
+                    </div>
                 </div>
 
-                <div class="col-md-8" th:if="${tipoSelecionado == 'vendedor'}">
-                    <label class="form-label fw-semibold text-secondary">Selecione um Vendedor Específico:</label>
-                    <select name="vendedorId" class="form-select">
-                        <option value="">-- Exibir Todos os Vendedores --</option>
-                        <option value="1" th:selected="${vendedorSelecionadoId == 1}">Admin / Usuário Padrão</option>
-                    </select>
-                </div>
+                <div class="row align-items-end g-3">
+                    <div class="col-md-8" th:if="${tipoSelecionado == 'cliente'}">
+                        <label class="form-label fw-semibold text-secondary">Selecione um Cliente Específico:</label>
+                        <select name="clienteId" class="form-select">
+                            <option value="">-- Exibir Todos os Clientes --</option>
 
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-success w-100 fw-medium">🔍 Aplicar Filtro</button>
+                            <option th:each="c : ${clientes}"
+                                    th:value="${c.id}"
+                                    th:text="${c.nome} + ' (CPF: ' + ${c.cpf} + ')'"
+                                    th:selected="${c.id.toString() == clienteSelecionadoIdStr}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-8" th:if="${tipoSelecionado == 'vendedor'}">
+                        <label class="form-label fw-semibold text-secondary">Selecione um Vendedor Específico:</label>
+                        <select name="vendedorNome" class="form-select">
+                            <option value="">-- Exibir Todos os Vendedores --</option>
+                            <option th:each="vNome : ${vendedoresLista}"
+                                    th:value="${vNome}"
+                                    th:text="${vNome}"
+                                    th:selected="${vNome == vendedorSelecionadoNome}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-success w-100 fw-medium">Aplicar Filtro</button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -81,7 +100,7 @@
     </div>
 
     <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 16px;">
-        <h5 class="fw-bold mb-3 text-secondary">📈 Evolução das Transações (Histórico Temporal)</h5>
+        <h5 class="fw-bold mb-3 text-secondary">Evolução das Transações (Histórico Temporal)</h5>
         <div style="width: 100%; max-height: 350px;">
             <canvas id="graficoVendas"></canvas>
         </div>
@@ -96,39 +115,47 @@
             <table class="table table-hover align-middle mb-0" id="tabelaVendas">
                 <thead class="table-light text-muted small text-uppercase">
                 <tr>
-                    <th>Cód.</th>
-                    <th th:text="${tipoSelecionado == 'cliente'} ? 'Cliente' : 'Vendedor'">Entidade</th>
-                    <th>Serviços / Itens</th>
-                    <th>Data</th>
-                    <th class="text-end">Valor</th>
+                    <th style="width: 10%;">Cód.</th>
+                    <th style="width: 25%;">Vendedor</th>
+                    <th style="width: 25%;">Cliente</th>
+                    <th style="width: 25%;">Serviços / Itens</th>
+                    <th style="width: 15%;">Data</th>
+                    <th style="width: 15%;" class="text-end">Valor</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr th:each="venda : ${vendas}">
                     <td class="fw-bold text-secondary" th:text="'#' + ${venda.id}">#1</td>
+
                     <td>
-                        <span th:if="${tipoSelecionado == 'cliente' and venda.cliente != null}" class="fw-semibold text-primary" th:text="${venda.cliente.nome}"></span>
-                        <span th:if="${tipoSelecionado == 'cliente' and venda.cliente == null}" class="text-muted">Não informado</span>
-                        <span th:if="${tipoSelecionado == 'vendedor'}" class="fw-semibold text-success">Admin (Padrão)</span>
+                        <span class="fw-semibold text-success" th:text="${venda.vendedor != null ? venda.vendedor : 'Admin (Padrão)'}">Admin (Padrão)</span>
                     </td>
+
+                    <td>
+                        <span th:if="${venda.cliente != null}" class="fw-semibold text-primary" th:text="${venda.cliente.nome}"></span>
+                    </td>
+
                     <td>
                         <div class="d-flex flex-wrap gap-1">
                             <span th:each="s : ${venda.servicos}" class="badge bg-light text-dark border px-2 py-1" th:text="${s.nome}"></span>
                         </div>
                     </td>
+
                     <td class="text-muted small data-venda-col"
                         th:text="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy')}"
                         th:data-raw-date="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy')}"
                         th:data-raw-value="${venda.valorTotal}">
                         25/05/2026
                     </td>
+
                     <td class="text-end fw-bold text-success"
                         th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorTotal, 1, 'POINT', 2, 'COMMA')}">
                         R$ 0,00
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(vendas)}">
-                    <td colspan="5" class="text-center py-4 text-muted">Nenhuma operação financeira encontrada para este filtro.</td>
+                    <td colspan="6" class="text-center py-4 text-muted">Nenhuma operação financeira encontrada para este filtro.</td>
                 </tr>
                 </tbody>
             </table>
@@ -199,6 +226,14 @@
             });
         }
     });
+</script>
+<script>
+    function mudarAba(tipo) {
+        // Atualiza o valor do campo oculto 'tipo' para cliente ou vendedor
+        document.getElementById("inputTipo").value = tipo;
+        // Submete o formulário inteiro carregando junto as datas preenchidas!
+        document.getElementById("formFiltros").submit();
+    }
 </script>
 </body>
 </html>
